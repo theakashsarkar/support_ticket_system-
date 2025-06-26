@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./src:/var/www
-    networks:
+    networks: 
       - laravel_network
 
   webserver:
