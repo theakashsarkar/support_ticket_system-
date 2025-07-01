@@ -1,34 +1,22 @@
 <?php
 
-use http\Client\Request;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Validator;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware('auth')->name('dashboard');
+
+Route::post('/dashboard', function () {
+    return view('dashboard');
+})->middleware('auth')->name('tickets.store');
+
+Route::get('/ti', function (){
+    return view('tickets.create');
 });
 
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
 
-Route::post('/register', function (Request $request) {
-    $validator = Validator::make($request->all(), [
-        'fname' => 'required',
-        'lname' => 'required',
-        'email' => 'required|email|unique:users,email',
-        'number' => 'required|digits:11',
-        'password' => 'required|min:6',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'errors' => $validator->errors()
-        ], 422);
-    }
-
-    // Simulate user creation
-    // User::create([...])
-
-    return response()->json(['message' => 'Registered successfully']);
-});
-Route::get('/hello', function (){
-    return 'Hello World';
-});
+Route::get('/', [AuthController::class, 'showRegisterForm'])->name('register');
+Route::post('/register', [AuthController::class, 'register'])->name('register');
