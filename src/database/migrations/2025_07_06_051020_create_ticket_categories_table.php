@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('ticket_categories', function (Blueprint $table) {
             $table->id();
-            $table->enum('category', [Category::Billing->value, Category::Technical->value, Category::General])->default(Category::General->value);
+            $table->enum('category', [Category::Billing->value, Category::Technical->value, Category::General->value])->default(Category::General->value);
             $table->timestamps();
         });
     }

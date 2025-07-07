@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
-            $table->enum('name', [Departments::Technical, Departments::Sales, Departments::Sales]);
+            $table->enum('name', [Departments::Technical->value, Departments::Sales->value, Departments::Sales->value]);
             $table->timestamps();
         });
     }
