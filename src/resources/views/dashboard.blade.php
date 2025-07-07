@@ -1,148 +1,107 @@
 @extends('layouts.auth')
 
 @section('content')
-    <div x-data="ticketDashboard()" class="max-w-7xl mx-auto px-4 py-10">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Support Ticket Dashboard</h1>
-
-        {{-- Stats --}}
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-6 rounded shadow text-center">
-                <p class="text-sm text-gray-500">Open</p>
-                <p class="text-2xl font-bold text-blue-600" x-text="countByStatus('open')"></p>
-            </div>
-            <div class="bg-white p-6 rounded shadow text-center">
-                <p class="text-sm text-gray-500">In Progress</p>
-                <p class="text-2xl font-bold text-yellow-500" x-text="countByStatus('in_progress')"></p>
-            </div>
-            <div class="bg-white p-6 rounded shadow text-center">
-                <p class="text-sm text-gray-500">Resolved</p>
-                <p class="text-2xl font-bold text-green-600" x-text="countByStatus('resolved')"></p>
-            </div>
-        </div>
-
-        {{-- Filter + Create --}}
-        <div class="flex justify-between items-center mb-4">
+    <div
+            class="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 mt-12 mr-12 ml-12"
+    >
+        <div
+                class="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between"
+        >
             <div>
-                <label class="text-sm text-gray-700 mr-2">Filter:</label>
-                <select x-model="filter" class="border-gray-300 rounded px-2 py-1 text-sm">
-                    <option value="">All</option>
-                    <option value="open">Open</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="resolved">Resolved</option>
-                </select>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
+                    Support Ticket system
+                </h3>
             </div>
-            <button @click="openModal = true"
-                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
-                + New Ticket
-            </button>
+
+            <div class="flex items-center gap-2">
+                <form class="">
+                    <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                            </svg>
+                        </div>
+                        <input type="search" id="default-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500
+                        dark:focus:border-blue-500 pr-8 pl-8" >
+                        <button type="submit" class="text-white cursor-pointer absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-0.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
+                    </div>
+                </form>
+
+                <button data-modal-target="default-modal" data-modal-toggle="default-modal"
+                        class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+                >
+                    Add Ticket
+                </button>
+            </div>
         </div>
 
-        {{-- Tickets Table --}}
-        <div class="bg-white rounded shadow overflow-x-auto">
-            <table class="w-full text-sm text-left text-gray-700">
-                <thead class="bg-gray-100">
-                <tr>
-                    <th class="px-6 py-3">Subject</th>
-                    <th class="px-6 py-3">Status</th>
-                    <th class="px-6 py-3">Priority</th>
-                    <th class="px-6 py-3">Created</th>
-                </tr>
-                </thead>
-                <tbody>
-                <template x-for="ticket in filteredTickets()" :key="ticket.id">
-                    <tr class="border-t">
-                        <td class="px-6 py-3" x-text="ticket.subject"></td>
-                        <td class="px-6 py-3">
-                            <span class="px-2 py-1 rounded text-white text-xs"
-                                  :class="{
-                                      'bg-blue-500': ticket.status === 'open',
-                                      'bg-yellow-500': ticket.status === 'in_progress',
-                                      'bg-green-600': ticket.status === 'resolved'
-                                  }"
-                                  x-text="formatStatus(ticket.status)">
-                            </span>
-                        </td>
-                        <td class="px-6 py-3 capitalize" x-text="ticket.priority"></td>
-                        <td class="px-6 py-3" x-text="ticket.created_at"></td>
+        <div class="w-full overflow-x-auto">
+            <table class="min-w-full">
+                <thead x-data="{ headers: ['Products', 'Category', 'Price', 'Status'] }">
+                    <tr class="border-y border-gray-100 dark:border-gray-800">
+                        <template x-for="header in headers" :key = "header">
+                            <th class="py-3 text-left">
+                                <div class="flex items-center">
+                                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400" x-text = "header"></p>
+                                </div>
+                            </th>
+                        </template>
                     </tr>
+                </thead>
+                <!-- table header end -->
+
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800"
+                    x-data="{
+                        rows: [
+                            {product: 'Macbook pro 13', category:'Laptop',price:'$2399.00', status:'Delivered'}
+                        ]
+                    }"
+                >
+                <template x-for="row in rows" :key="row.products">
+                <tr>
+                    <td class="py-3">
+                        <div class="flex items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="h-[50px] w-[50px] overflow-hidden rounded-md">
+                                    <img src="./images/product/product-01.jpg" alt="Product" />
+                                </div>
+                                <div>
+                                    <p
+                                            class="font-medium text-gray-800 text-theme-sm dark:text-white/90"
+                                            x-text="row.product"
+                                    >
+                                    </p>
+                                    <span class="text-gray-500 text-theme-xs dark:text-gray-400">
+                    2 Variants
+                  </span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3">
+                        <div class="flex items-center">
+                            <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="row.category"></p>
+                        </div>
+                    </td>
+                    <td class="py-3">
+                        <div class="flex items-center">
+                            <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="row.price"></p>
+                        </div>
+                    </td>
+                    <td class="py-3">
+                        <div class="flex items-center">
+                            <p class="rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-600 dark:bg-green-500/15 dark:text-green-500" x-text="row.status"></p>
+                        </div>
+                    </td>
+
+                </tr>
                 </template>
                 </tbody>
             </table>
         </div>
-
-        {{-- Create Ticket Modal --}}
-        <div x-show="openModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
-            <div class="bg-white p-6 rounded-lg shadow max-w-md w-full">
-                <h2 class="text-lg font-bold mb-4">Create Ticket</h2>
-                <div class="mb-3">
-                    <label class="block text-sm mb-1">Subject</label>
-                    <input type="text" x-model="newTicket.subject" class="w-full border px-3 py-2 rounded text-sm">
-                </div>
-                <div class="mb-3">
-                    <label class="block text-sm mb-1">Description</label>
-                    <textarea x-model="newTicket.description" class="w-full border px-3 py-2 rounded text-sm"></textarea>
-                </div>
-                <div class="mb-3">
-                    <label class="block text-sm mb-1">Priority</label>
-                    <select x-model="newTicket.priority" class="w-full border px-3 py-2 rounded text-sm">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
-                    </select>
-                </div>
-                <div class="flex justify-end space-x-2">
-                    <button @click="openModal = false"
-                            class="px-4 py-2 border rounded text-sm hover:bg-gray-100">Cancel</button>
-                    <button @click="addTicket"
-                            class="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">Create</button>
-                </div>
-            </div>
-        </div>
     </div>
+
 @endsection
 
-@push('scripts')
-    <script>
-        function ticketDashboard() {
-            return {
-                openModal: false,
-                filter: '',
-                newTicket: {
-                    subject: '',
-                    description: '',
-                    priority: 'medium',
-                },
-                tickets: [
-                    { id: 1, subject: 'Login Issue', status: 'open', priority: 'high', created_at: '2 hours ago' },
-                    { id: 2, subject: 'Billing Question', status: 'resolved', priority: 'low', created_at: '1 day ago' },
-                    { id: 3, subject: 'Website Down', status: 'in_progress', priority: 'high', created_at: '3 days ago' },
-                ],
-                formatStatus(status) {
-                    return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-                },
-                countByStatus(status) {
-                    return this.tickets.filter(t => t.status === status).length;
-                },
-                filteredTickets() {
-                    if (this.filter === '') return this.tickets;
-                    return this.tickets.filter(t => t.status === this.filter);
-                },
-                addTicket() {
-                    const id = this.tickets.length + 1;
-                    const ticket = {
-                        id,
-                        subject: this.newTicket.subject,
-                        status: 'open',
-                        priority: this.newTicket.priority,
-                        created_at: 'Just now'
-                    };
-                    this.tickets.unshift(ticket);
-                    this.newTicket.subject = '';
-                    this.newTicket.description = '';
-                    this.newTicket.priority = 'medium';
-                    this.openModal = false;
-                }
-            }
-        }
-    </script>
-@endpush
+
